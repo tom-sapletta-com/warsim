@@ -951,8 +951,259 @@
             }
         };
         
+        // Funkcje mapy taktycznej
+        function initializeMap() {
+            // Czyść warstwy
+            document.getElementById('unitLayer').innerHTML = '';
+            document.getElementById('battleLayer').innerHTML = '';
+            document.getElementById('movementLayer').innerHTML = '';
+            battles = [];
+            units = [];
+        }
         
-        // Bardziej realistyczne dane bazowee(
+        function spawnUnit(name, x, y, side, size = 20) {
+            const unit = {
+                id: `unit_${units.length}`,
+                name: name,
+                x: x,
+                y: y,
+                side: side,
+                size: size,
+                strength: 100
+            };
+            units.push(unit);
+            
+            const unitLayer = document.getElementById('unitLayer');
+            const unitGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            unitGroup.id = unit.id;
+            
+            // Ikona jednostki
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x - size/2);
+            rect.setAttribute('y', y - size/2);
+            rect.setAttribute('width', size);
+            rect.setAttribute('height', size);
+            rect.setAttribute('fill', side === 'poland' ? 'rgba(0,100,255,0.6)' : 'rgba(255,0,0,0.6)');
+            rect.setAttribute('stroke', side === 'poland' ? '#0066ff' : '#ff0000');
+            rect.setAttribute('stroke-width', '2');
+            
+            // Etykieta
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', y - size/2 - 5);
+            text.setAttribute('fill', 'white');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', '10');
+            text.textContent = name;
+            
+            unitGroup.appendChild(rect);
+            unitGroup.appendChild(text);
+            unitLayer.appendChild(unitGroup);
+            
+            return unit;
+        }
+        
+        function createBattle(x, y, name, status = 'ongoing') {
+            const battle = {
+                id: `battle_${battles.length}`,
+                x: x,
+                y: y,
+                name: name,
+                status: status, // 'ongoing', 'victory', 'defeat'
+                startTime: currentDay,
+                intensity: Math.random()
+            };
+            battles.push(battle);
+            
+            updateBattleVisual(battle);
+            return battle;
+        }
+        
+        function updateBattleVisual(battle) {
+            const battleLayer = document.getElementById('battleLayer');
+            let battleElement = document.getElementById(battle.id);
+            
+            if (!battleElement) {
+                battleElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                battleElement.id = battle.id;
+                battleLayer.appendChild(battleElement);
+            }
+            
+            battleElement.innerHTML = '';
+            
+            // Kolor w zależności od statusu
+            let color = '#ff9800'; // pomarańczowy - trwa
+            if (battle.status === 'victory') color = '#4caf50'; // zielony
+            if (battle.status === 'defeat') color = '#f44336'; // czerwony
+            
+            // Animacja dla trwających bitew
+            if (battle.status === 'ongoing') {
+                // Pulsujący okrąg
+                const pulseCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                pulseCircle.setAttribute('cx', battle.x);
+                pulseCircle.setAttribute('cy', battle.y);
+                pulseCircle.setAttribute('r', '15');
+                pulseCircle.setAttribute('fill', 'none');
+                pulseCircle.setAttribute('stroke', color);
+                pulseCircle.setAttribute('stroke-width', '2');
+                pulseCircle.setAttribute('opacity', '0.5');
+                
+                const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                animate.setAttribute('attributeName', 'r');
+                animate.setAttribute('from', '10');
+                animate.setAttribute('to', '25');
+                animate.setAttribute('dur', '1.5s');
+                animate.setAttribute('repeatCount', 'indefinite');
+                
+                const animateOpacity = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                animateOpacity.setAttribute('attributeName', 'opacity');
+                animateOpacity.setAttribute('from', '0.8');
+                animateOpacity.setAttribute('to', '0');
+                animateOpacity.setAttribute('dur', '1.5s');
+                animateOpacity.setAttribute('repeatCount', 'indefinite');
+                
+                pulseCircle.appendChild(animate);
+                pulseCircle.appendChild(animateOpacity);
+                battleElement.appendChild(pulseCircle);
+            }
+            
+            // Główny znacznik bitwy
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', battle.x);
+            circle.setAttribute('cy', battle.y);
+            circle.setAttribute('r', '8');
+            circle.setAttribute('fill', color);
+            circle.setAttribute('stroke', 'white');
+            circle.setAttribute('stroke-width', '2');
+            
+            // Symbol w środku
+            const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            symbol.setAttribute('x', battle.x);
+            symbol.setAttribute('y', battle.y + 3);
+            symbol.setAttribute('fill', 'white');
+            symbol.setAttribute('text-anchor', 'middle');
+            symbol.setAttribute('font-size', '10');
+            symbol.setAttribute('font-weight', 'bold');
+            if (battle.status === 'ongoing') symbol.textContent = '⚔';
+            if (battle.status === 'victory') symbol.textContent = '✓';
+            if (battle.status === 'defeat') symbol.textContent = '✗';
+            
+            // Nazwa bitwy
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', battle.x);
+            label.setAttribute('y', battle.y + 20);
+            label.setAttribute('fill', 'white');
+            label.setAttribute('text-anchor', 'middle');
+            label.setAttribute('font-size', '9');
+            label.textContent = battle.name;
+            
+            battleElement.appendChild(circle);
+            battleElement.appendChild(symbol);
+            battleElement.appendChild(label);
+        }
+        
+        function drawMovementArrow(fromX, fromY, toX, toY, side) {
+            const movementLayer = document.getElementById('movementLayer');
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', fromX);
+            line.setAttribute('y1', fromY);
+            line.setAttribute('x2', toX);
+            line.setAttribute('y2', toY);
+            line.setAttribute('stroke', side === 'poland' ? '#2196f3' : '#f44336');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('stroke-dasharray', '5,5');
+            line.setAttribute('marker-end', side === 'poland' ? 'url(#arrowBlue)' : 'url(#arrowRed)');
+            line.setAttribute('opacity', '0.7');
+            
+            // Animacja
+            const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+            animate.setAttribute('attributeName', 'stroke-dashoffset');
+            animate.setAttribute('from', '0');
+            animate.setAttribute('to', '10');
+            animate.setAttribute('dur', '0.5s');
+            animate.setAttribute('repeatCount', 'indefinite');
+            
+            line.appendChild(animate);
+            movementLayer.appendChild(line);
+            
+            // Usuń po 3 sekundach
+            setTimeout(() => {
+                if (line.parentNode) {
+                    line.parentNode.removeChild(line);
+                }
+            }, 3000);
+        }
+        
+        function simulateMapEvents(day, balance) {
+            // Dzień 1 - Pierwsze ataki
+            if (day === 1) {
+                if (document.getElementById('kaliningrad').checked) {
+                    // Atak z Królewca
+                    spawnUnit('Iskander Btry', 375, 50, 'enemy', 25);
+                    setTimeout(() => {
+                        drawMovementArrow(375, 50, 350, 150, 'enemy');
+                        createBattle(350, 150, 'Obrona Gdańska', 'ongoing');
+                    }, 500);
+                }
+                
+                if (document.getElementById('belarus').checked) {
+                    // Białoruskie jednostki
+                    spawnUnit('BY 6th Mech', 600, 225, 'enemy');
+                    spawnUnit('Wagner Grp', 580, 200, 'enemy');
+                    setTimeout(() => {
+                        drawMovementArrow(600, 225, 520, 230, 'enemy');
+                        createBattle(540, 220, 'Bitwa o Białystok', 'ongoing');
+                    }, 1000);
+                }
+                
+                // Polskie jednostki obronne
+                spawnUnit('16 DZ', 420, 260, 'poland');
+                spawnUnit('11 DKPanc', 215, 293, 'poland');
+            }
+            
+            // Dzień 2 - Eskalacja
+            if (day === 2) {
+                battles.forEach(battle => {
+                    if (battle.status === 'ongoing' && Math.random() > 0.5) {
+                        battle.status = balance.ratio > 1 ? 'victory' : 'defeat';
+                        updateBattleVisual(battle);
+                    }
+                });
+                
+                if (document.getElementById('airborne').checked) {
+                    createBattle(400, 250, 'Desant pod Warszawą', 'ongoing');
+                }
+            }
+            
+            // Dzień 3+ - NATO przybywa
+            if (day === 3 && document.getElementById('nato').checked) {
+                spawnUnit('US 82nd Abn', 250, 250, 'poland', 25);
+                spawnUnit('UK Para Rgt', 380, 380, 'poland');
+                drawMovementArrow(100, 250, 250, 250, 'poland');
+            }
+            
+            // Aktualizacja statusu bitew
+            battles.forEach(battle => {
+                if (battle.status === 'ongoing') {
+                    // Losowa zmiana statusu z preferencją w zależności od balansu sił
+                    const roll = Math.random();
+                    if (roll < 0.1) {
+                        battle.status = balance.ratio > 1.2 ? 'victory' : 
+                                       balance.ratio < 0.8 ? 'defeat' : 
+                                       Math.random() > 0.5 ? 'victory' : 'defeat';
+                        updateBattleVisual(battle);
+                    }
+                }
+            });
+            
+            // Generowanie nowych starć
+            if (Math.random() > 0.7 && battles.length < 10) {
+                const cities = Object.keys(strategicPoints.cities);
+                const randomCity = cities[Math.floor(Math.random() * cities.length)];
+                const cityData = strategicPoints.cities[randomCity];
+                
+                createBattle(
                     cityData.x + (Math.random() - 0.5) * 40,
                     cityData.y + (Math.random() - 0.5) * 40,
                     `Walka o ${randomCity}`,
