@@ -301,7 +301,7 @@
         
         .casualties-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
             margin-top: 10px;
             padding: 10px;
@@ -497,12 +497,31 @@
             ⚠️ UWAGA: Symulacja edukacyjna oparta na danych publicznych. Zawiera realistyczne szacunki strat. Nie reprezentuje rzeczywistych planów obronnych.
         </div>
         
-        <!-- Główne statystyki -->
+        <!-- Główne statystyki - porównanie stron -->
         <div class="stats-grid">
+            <!-- POLSKA -->
             <div class="stat-card">
-                <h3>🪖 Siły Zbrojne RP</h3>
+                <h3>🇵🇱 Siły Zbrojne RP</h3>
                 <div class="stat-value" id="plForces">210,300</div>
                 <div class="stat-change" id="plForcesChange">Pełna gotowość</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>⚔️ Siły Przeciwnika</h3>
+                <div class="stat-value" id="enemyForces">360,000</div>
+                <div class="stat-change" id="enemyForcesChange">RU + BY</div>
+            </div>
+            
+            <div class="stat-card critical-stat">
+                <h3>💀 Straty PL</h3>
+                <div class="stat-value" id="plCasualties">0</div>
+                <div class="stat-change" id="plCasualtyRate">0/dzień</div>
+            </div>
+            
+            <div class="stat-card critical-stat">
+                <h3>☠️ Straty Wroga</h3>
+                <div class="stat-value" id="enemyCasualties">0</div>
+                <div class="stat-change" id="enemyCasualtyRate">0/dzień</div>
             </div>
             
             <div class="stat-card">
@@ -529,10 +548,29 @@
                 <div class="stat-change" id="dayStatus">Pokój</div>
             </div>
             
-            <div class="stat-card critical-stat">
-                <h3>💀 Łączne Straty</h3>
-                <div class="stat-value" id="totalCasualties">0</div>
-                <div class="stat-change" id="casualtyRate">0/dzień</div>
+            <!-- Dodatkowe statystyki porównawcze -->
+            <div class="stat-card">
+                <h3>🚜 Czołgi PL</h3>
+                <div class="stat-value" id="plTanks">430</div>
+                <div class="stat-change" id="plTanksLost">Sprawne</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🎯 Czołgi Wroga</h3>
+                <div class="stat-value" id="enemyTanks">2,500</div>
+                <div class="stat-change" id="enemyTanksLost">Operacyjne</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>✈️ Lotnictwo PL</h3>
+                <div class="stat-value" id="plAircraft">80</div>
+                <div class="stat-change" id="plAircraftStatus">Operacyjne</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🛩️ Lotnictwo Wroga</h3>
+                <div class="stat-value" id="enemyAircraft">400</div>
+                <div class="stat-change" id="enemyAircraftStatus">Gotowe</div>
             </div>
         </div>
         
@@ -1334,10 +1372,10 @@
             radarChart = new Chart(radarCtx, {
                 type: 'radar',
                 data: {
-                    labels: ['Siły Lądowe', 'Lotnictwo', 'Obrona Powietrzna', 'Wsparcie NATO', 'Logistyka', 'Cyberoborna', 'Morale', 'Rezerwy'],
+                    labels: ['Siły Lądowe', 'Lotnictwo', 'Obrona Powietrzna', 'Artyleria', 'Logistyka', 'Cyberoborna', 'Morale'],
                     datasets: [{
-                        label: 'Polska + NATO',
-                        data: [50, 40, 60, 0, 70, 50, 100, 80],
+                        label: 'Polska',
+                        data: [50, 40, 60, 55, 70, 50, 100],
                         borderColor: 'rgba(79, 195, 247, 1)',
                         backgroundColor: 'rgba(79, 195, 247, 0.2)',
                         pointBackgroundColor: 'rgba(79, 195, 247, 1)',
@@ -1345,7 +1383,7 @@
                         pointHoverBackgroundColor: '#fff'
                     }, {
                         label: 'Siły Przeciwnika',
-                        data: [85, 80, 70, 0, 60, 70, 80, 90],
+                        data: [85, 80, 70, 75, 60, 70, 80],
                         borderColor: 'rgba(244, 67, 54, 1)',
                         backgroundColor: 'rgba(244, 67, 54, 0.2)',
                         pointBackgroundColor: 'rgba(244, 67, 54, 1)',
@@ -1387,11 +1425,11 @@
                         backgroundColor: 'rgba(79, 195, 247, 0.1)',
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 4,
+                        pointRadius: 2,
                         pointBackgroundColor: 'rgba(79, 195, 247, 1)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1,
-                        pointHoverRadius: 6
+                        pointHoverRadius: 5
                     }, {
                         label: 'Straty Cywilne',
                         data: [],
@@ -1399,11 +1437,11 @@
                         backgroundColor: 'rgba(255, 152, 0, 0.1)',
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 4,
+                        pointRadius: 2,
                         pointBackgroundColor: 'rgba(255, 152, 0, 1)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1,
-                        pointHoverRadius: 6
+                        pointHoverRadius: 5
                     }, {
                         label: 'Zniszczenia Infrastruktury (%)',
                         data: [],
@@ -1411,24 +1449,24 @@
                         backgroundColor: 'rgba(244, 67, 54, 0.1)',
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 4,
+                        pointRadius: 2,
                         pointBackgroundColor: 'rgba(244, 67, 54, 1)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1,
-                        pointHoverRadius: 6,
+                        pointHoverRadius: 5,
                         yAxisID: 'y1'
                     }, {
-                        label: 'Straty Sprzętu',
+                        label: 'Straty Wroga',
                         data: [],
                         borderColor: 'rgba(156, 39, 176, 1)',
                         backgroundColor: 'rgba(156, 39, 176, 0.1)',
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 4,
+                        pointRadius: 2,
                         pointBackgroundColor: 'rgba(156, 39, 176, 1)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1,
-                        pointHoverRadius: 6,
+                        pointHoverRadius: 5,
                         borderDash: [5, 5]
                     }, {
                         label: 'Morale (%)',
@@ -1437,11 +1475,11 @@
                         backgroundColor: 'rgba(76, 175, 80, 0.1)',
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 4,
+                        pointRadius: 2,
                         pointBackgroundColor: 'rgba(76, 175, 80, 1)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1,
-                        pointHoverRadius: 6,
+                        pointHoverRadius: 5,
                         yAxisID: 'y1'
                     }]
                 },
@@ -1456,7 +1494,7 @@
                         y: {
                             beginAtZero: true,
                             position: 'left',
-                            title: { display: true, text: 'Straty (osoby/sprzęt)', color: '#ccc' },
+                            title: { display: true, text: 'Straty (osoby)', color: '#ccc' },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' },
                             ticks: { color: '#999' }
                         },
@@ -1470,12 +1508,18 @@
                         },
                         x: {
                             grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#999' }
+                            ticks: { 
+                                color: '#999',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 15
+                            }
                         }
                     },
                     plugins: {
                         legend: { 
-                            labels: { color: '#ccc', font: { size: 11 } },
+                            labels: { color: '#ccc', font: { size: 10 } },
                             position: 'top'
                         },
                         tooltip: {
@@ -1534,7 +1578,7 @@
                 day: day,
                 hour: 0,
                 events: [],
-                casualties: { military: 0, civilian: 0 },
+                casualties: { military: 0, civilian: 0, enemy: 0 },
                 infrastructure: 0
             };
             
@@ -1545,6 +1589,19 @@
             const baseMilitaryLosses = Math.floor(300 + Math.random() * 700);
             dayLog.casualties.military = Math.floor(baseMilitaryLosses * intensity);
             warData.casualties.military.poland += dayLog.casualties.military;
+            
+            // Straty wroga - zależne od polskiej obrony
+            const enemyBaseLosses = Math.floor(200 + Math.random() * 500);
+            dayLog.casualties.enemy = Math.floor(enemyBaseLosses * (2 - intensity));
+            warData.casualties.military.enemy += dayLog.casualties.enemy;
+            
+            // Straty w sprzęcie
+            if (Math.random() > 0.7) {
+                warData.casualties.equipment.poland.tanks += Math.floor(Math.random() * 5);
+                warData.casualties.equipment.poland.aircraft += Math.floor(Math.random() * 2);
+                warData.casualties.equipment.enemy.tanks += Math.floor(Math.random() * 8);
+                warData.casualties.equipment.enemy.aircraft += Math.floor(Math.random() * 3);
+            }
             
             // Straty cywilne - zależne od scenariusza
             if (document.getElementById('missiles').checked || document.getElementById('drones').checked) {
@@ -1729,8 +1786,9 @@
             header.innerHTML = `
                 <span class="day-marker">Dzień ${dayLog.day}</span>
                 <span class="day-status">
-                    <span>⚔️ ${dayLog.casualties.military}</span>
-                    <span>👥 ${dayLog.casualties.civilian}</span>
+                    <span>⚔️ PL: ${dayLog.casualties.military}</span>
+                    <span>☠️ Wróg: ${dayLog.casualties.enemy || 0}</span>
+                    <span>👥 Cyw: ${dayLog.casualties.civilian}</span>
                     <span>🏭 -${dayLog.infrastructure}%</span>
                 </span>
             `;
@@ -1754,7 +1812,11 @@
                 casualties.innerHTML = `
                     <div class="casualty-item">
                         <div class="casualty-number">${dayLog.casualties.military}</div>
-                        <div class="casualty-label">Straty wojskowe</div>
+                        <div class="casualty-label">Straty wojskowe PL</div>
+                    </div>
+                    <div class="casualty-item">
+                        <div class="casualty-number">${dayLog.casualties.enemy || 0}</div>
+                        <div class="casualty-label">Straty wroga</div>
                     </div>
                     <div class="casualty-item">
                         <div class="casualty-number">${dayLog.casualties.civilian}</div>
@@ -1762,7 +1824,7 @@
                     </div>
                     <div class="casualty-item">
                         <div class="casualty-number">${Math.floor(dayLog.casualties.military * 2.5)}</div>
-                        <div class="casualty-label">Ranni</div>
+                        <div class="casualty-label">Ranni PL</div>
                     </div>
                 `;
                 dayDiv.appendChild(casualties);
@@ -1790,11 +1852,52 @@
         
         // Aktualizacja statystyk
         function updateStatistics(day) {
-            // Siły zbrojne
+            // Siły zbrojne Polski
             const remainingForces = warData.poland.military.personnel - warData.casualties.military.poland;
             document.getElementById('plForces').textContent = remainingForces.toLocaleString();
             document.getElementById('plForcesChange').textContent = 
                 `Straty: ${warData.casualties.military.poland.toLocaleString()}`;
+            
+            // Siły przeciwnika
+            const initialEnemyForces = warData.enemy.russia.availableForPoland + warData.enemy.belarus.forces;
+            const remainingEnemyForces = initialEnemyForces - warData.casualties.military.enemy;
+            document.getElementById('enemyForces').textContent = remainingEnemyForces.toLocaleString();
+            document.getElementById('enemyForcesChange').textContent = 
+                `Straty: ${warData.casualties.military.enemy.toLocaleString()}`;
+            
+            // Straty Polski
+            document.getElementById('plCasualties').textContent = 
+                warData.casualties.military.poland.toLocaleString();
+            document.getElementById('plCasualtyRate').textContent = 
+                `${Math.floor(warData.casualties.military.poland / day)}/dzień`;
+            
+            // Straty wroga
+            document.getElementById('enemyCasualties').textContent = 
+                warData.casualties.military.enemy.toLocaleString();
+            document.getElementById('enemyCasualtyRate').textContent = 
+                `${Math.floor(warData.casualties.military.enemy / day)}/dzień`;
+            
+            // Czołgi
+            const plTanksRemaining = warData.poland.military.tanks - warData.casualties.equipment.poland.tanks;
+            document.getElementById('plTanks').textContent = plTanksRemaining;
+            document.getElementById('plTanksLost').textContent = 
+                `Stracono: ${warData.casualties.equipment.poland.tanks}`;
+            
+            const enemyTanksRemaining = warData.enemy.russia.tanks - warData.casualties.equipment.enemy.tanks;
+            document.getElementById('enemyTanks').textContent = enemyTanksRemaining;
+            document.getElementById('enemyTanksLost').textContent = 
+                `Stracono: ${warData.casualties.equipment.enemy.tanks}`;
+            
+            // Lotnictwo
+            const plAircraftRemaining = warData.poland.military.aircraft - warData.casualties.equipment.poland.aircraft;
+            document.getElementById('plAircraft').textContent = plAircraftRemaining;
+            document.getElementById('plAircraftStatus').textContent = 
+                `Stracono: ${warData.casualties.equipment.poland.aircraft}`;
+            
+            const enemyAircraftRemaining = warData.enemy.russia.aircraft - warData.casualties.equipment.enemy.aircraft;
+            document.getElementById('enemyAircraft').textContent = enemyAircraftRemaining;
+            document.getElementById('enemyAircraftStatus').textContent = 
+                `Stracono: ${warData.casualties.equipment.enemy.aircraft}`;
             
             // Ludność cywilna
             const remainingCivilians = warData.poland.civilian.population - warData.casualties.civilian;
@@ -1815,12 +1918,6 @@
             document.getElementById('currentDay').textContent = day;
             document.getElementById('dayStatus').textContent = 'Wojna totalna';
             
-            // Straty łączne
-            const totalCasualties = warData.casualties.military.poland + warData.casualties.civilian;
-            document.getElementById('totalCasualties').textContent = totalCasualties.toLocaleString();
-            document.getElementById('casualtyRate').textContent = 
-                `${Math.floor(totalCasualties / day)}/dzień`;
-            
             // Panel analizy
             const balance = calculateForceBalance();
             document.getElementById('forceBalance').textContent = 
@@ -1830,7 +1927,7 @@
             document.getElementById('ammoStatus').textContent = 
                 Math.max(0, 100 - day * 3) + '%';
             document.getElementById('morale').textContent = 
-                Math.max(30, 100 - totalCasualties / 1000) + '%';
+                Math.max(30, 100 - (warData.casualties.military.poland + warData.casualties.civilian) / 1000) + '%';
             document.getElementById('warCost').textContent = 
                 (day * 5.5).toFixed(1) + ' mld PLN';
             
@@ -1847,42 +1944,39 @@
         
         // Aktualizacja wykresów
         function updateCharts(day, dayLog) {
-            // Aktualizacja diagramu radarowego
+            // Aktualizacja diagramu radarowego (bez NATO)
             const balance = calculateForceBalance();
-            const natoActive = day >= 2 && document.getElementById('nato').checked;
             
             radarChart.data.datasets[0].data = [
                 Math.max(20, 50 - (warData.casualties.military.poland / 1000)),
                 Math.max(10, 40 - day * 2),
                 document.getElementById('patriot').checked ? 60 : 30,
-                natoActive ? 80 : 0,
+                Math.max(20, 55 - day),  // Artyleria
                 Math.max(30, 70 - day * 2),
                 document.getElementById('cyber').checked ? 30 : 50,
-                Math.max(30, 100 - (warData.casualties.civilian / 100)),
-                document.getElementById('mobilization').checked ? 80 : 40
+                Math.max(30, 100 - (warData.casualties.civilian / 100))
             ];
             
             radarChart.data.datasets[1].data = [
                 85 - (warData.casualties.military.enemy / 1000),
                 80 - day,
                 70,
-                0,
+                75 - day * 0.5,  // Artyleria wroga
                 60 - day,
                 document.getElementById('cyber').checked ? 70 : 40,
-                80,
-                90
+                80
             ];
             radarChart.update();
             
-            // Aktualizacja wykresu liniowego
-            if (histogramChart.data.labels.length > 15) {
+            // Aktualizacja wykresu liniowego - do 60 dni widocznych
+            if (histogramChart.data.labels.length > 60) {
                 histogramChart.data.labels.shift();
                 histogramChart.data.datasets.forEach(dataset => dataset.data.shift());
             }
             
-            histogramChart.data.labels.push(`Dzień ${day}`);
+            histogramChart.data.labels.push(`D${day}`);
             
-            // Straty wojskowe
+            // Straty wojskowe PL
             histogramChart.data.datasets[0].data.push(dayLog.casualties.military);
             
             // Straty cywilne
@@ -1893,9 +1987,8 @@
                 .reduce((a, b) => a + b, 0) / 6;
             histogramChart.data.datasets[2].data.push(infraDamage);
             
-            // Straty sprzętu (symulowane)
-            const equipmentLosses = Math.floor(day * 5 + Math.random() * 10);
-            histogramChart.data.datasets[3].data.push(equipmentLosses);
+            // Straty wroga
+            histogramChart.data.datasets[3].data.push(dayLog.casualties.enemy || 0);
             
             // Morale
             const morale = Math.max(30, 100 - (warData.casualties.military.poland + warData.casualties.civilian) / 500);
@@ -1971,6 +2064,12 @@
             // Reset statystyk
             document.getElementById('plForces').textContent = '210,300';
             document.getElementById('plForcesChange').textContent = 'Pełna gotowość';
+            document.getElementById('enemyForces').textContent = '360,000';
+            document.getElementById('enemyForcesChange').textContent = 'RU + BY';
+            document.getElementById('plCasualties').textContent = '0';
+            document.getElementById('plCasualtyRate').textContent = '0/dzień';
+            document.getElementById('enemyCasualties').textContent = '0';
+            document.getElementById('enemyCasualtyRate').textContent = '0/dzień';
             document.getElementById('civilians').textContent = '38.0 mln';
             document.getElementById('civiliansStatus').textContent = 'Bez strat';
             document.getElementById('infrastructure').textContent = '100%';
@@ -1979,8 +2078,14 @@
             document.getElementById('natoETA').textContent = 'Art. 5 nieaktywny';
             document.getElementById('currentDay').textContent = '0';
             document.getElementById('dayStatus').textContent = 'Pokój';
-            document.getElementById('totalCasualties').textContent = '0';
-            document.getElementById('casualtyRate').textContent = '0/dzień';
+            document.getElementById('plTanks').textContent = '430';
+            document.getElementById('plTanksLost').textContent = 'Sprawne';
+            document.getElementById('enemyTanks').textContent = '2,500';
+            document.getElementById('enemyTanksLost').textContent = 'Operacyjne';
+            document.getElementById('plAircraft').textContent = '80';
+            document.getElementById('plAircraftStatus').textContent = 'Operacyjne';
+            document.getElementById('enemyAircraft').textContent = '400';
+            document.getElementById('enemyAircraftStatus').textContent = 'Gotowe';
             
             // Reset statystyk mapy
             document.getElementById('activeFronts').textContent = '0';
@@ -1994,8 +2099,8 @@
                 histogramChart.update();
             }
             if (radarChart) {
-                radarChart.data.datasets[0].data = [50, 40, 60, 0, 70, 50, 100, 80];
-                radarChart.data.datasets[1].data = [85, 80, 70, 0, 60, 70, 80, 90];
+                radarChart.data.datasets[0].data = [50, 40, 60, 55, 70, 50, 100];
+                radarChart.data.datasets[1].data = [85, 80, 70, 75, 60, 70, 80];
                 radarChart.update();
             }
             
@@ -2047,6 +2152,10 @@
                     <div class="casualty-item">
                         <div class="casualty-number">${warData.casualties.military.poland.toLocaleString()}</div>
                         <div class="casualty-label">Straty wojskowe PL</div>
+                    </div>
+                    <div class="casualty-item">
+                        <div class="casualty-number">${warData.casualties.military.enemy.toLocaleString()}</div>
+                        <div class="casualty-label">Straty wroga</div>
                     </div>
                     <div class="casualty-item">
                         <div class="casualty-number">${warData.casualties.civilian.toLocaleString()}</div>
